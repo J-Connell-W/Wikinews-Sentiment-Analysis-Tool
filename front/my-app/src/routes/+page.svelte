@@ -1,0 +1,73 @@
+<script>
+  import "@picocss/pico";
+
+  async function handleSubmit(event) {
+    event.preventDefault(); // Prevent the normal submission of the form
+    const form = event.target;
+    const data = new FormData(form);
+
+    // Construct the object to match the `Story` model
+    const story = {
+      id: data.get("id"), // Assuming you have a field for the 'id' in your form
+      original_language: data.get("original_language"),
+      translation_language: data.get("translation_language"),
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/story/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(story),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(result); // Handle the response data
+    } catch (error) {
+      console.error("There was an error submitting the form", error);
+    }
+  }
+</script>
+
+<h1>Welcome to the WikiNews Story Tool</h1>
+<form>
+  <fieldset>
+    <label>
+      Story Url
+      <input
+        name="id"
+        placeholder="Enter the URL of the story"
+        autocomplete="given-name"
+      />
+    </label>
+    <select
+      name="original_language"
+      aria-label="Select the story's original language..."
+      required
+    >
+      <option selected disabled value="">
+        Select the story's original language...
+      </option>
+      <option>English</option>
+      <option>Spanish</option>
+    </select>
+    <select
+      name="translation_language"
+      aria-label="Select the language you want to translate to..."
+      required
+    >
+      <option selected disabled value="">
+        Select the language you want to translate to...
+      </option>
+      <option>English</option>
+      <option>Spanish</option>
+    </select>
+  </fieldset>
+
+  <input type="submit" value="Submit" />
+</form>
