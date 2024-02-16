@@ -1,10 +1,13 @@
-<script>
+<script lang="ts">
   import "@picocss/pico";
 
-  async function handleSubmit(event) {
+  let successStatus = " ";
+
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault(); // Prevent the normal submission of the form
-    const form = event.target;
+    const form = event.target as HTMLFormElement;
     const data = new FormData(form);
+    const value = Object.fromEntries(data.entries());
 
     // Construct the object to match the `Story` model
     const story = {
@@ -14,20 +17,22 @@
     };
 
     try {
-      const response = await fetch("http://localhost:8000/story/create", {
+      const response = await fetch("http://localhost:8000/story/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(story),
       });
-
+      if (response.ok) {
+        const result = await response.json();
+        successStatus = "yes";
+        console.log("success", result);
+      }
       if (!response.ok) {
+        successStatus = "no";
         throw new Error(`Error: ${response.status}`);
       }
-
-      const result = await response.json();
-      console.log(result); // Handle the response data
     } catch (error) {
       console.error("There was an error submitting the form", error);
     }
@@ -35,7 +40,7 @@
 </script>
 
 <h1>Welcome to the WikiNews Story Tool</h1>
-<form>
+<form on:submit={handleSubmit}>
   <fieldset>
     <label>
       Story Url
@@ -71,3 +76,11 @@
 
   <input type="submit" value="Submit" />
 </form>
+
+{#if successStatus == "yes"}
+  <p>Story submitted successfully!</p>
+{/if}
+
+{#if successStatus == "no"}
+  <p>There was an error submitting the form</p>
+{/if}
