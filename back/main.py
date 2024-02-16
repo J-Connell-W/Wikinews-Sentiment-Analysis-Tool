@@ -41,6 +41,7 @@ async def get_story(story_url: str):
 @app.post("/story")
 async def create_story(story: Story):
     stories.append(story)
+    print(stories)
     return {"message": "Story object has been created!"}
 
 
