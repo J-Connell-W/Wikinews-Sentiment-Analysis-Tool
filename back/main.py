@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models import Story
+import central as c
 
 app = FastAPI()
 
@@ -42,6 +43,7 @@ async def get_story(story_url: str):
 async def create_story(story: Story):
     stories.append(story)
     print(stories)
+    c.scrape_wikinews(story.url)
     return {"message": "Story object has been created!"}
 
 
