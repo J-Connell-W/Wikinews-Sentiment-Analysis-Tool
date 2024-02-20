@@ -21,6 +21,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@picocss/pico": "^2.0.0"
+		"@picocss/pico": "^2.0.0",
+		"@sveltejs/adapter-netlify": "^4.1.0"
 	}
 }
