@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
+
 def scrape_wikinews(url):
     response = requests.get(url)
     content = response.content
@@ -70,8 +71,3 @@ def scrape_wikinews(url):
 
     all_text = " ".join(content)
     return all_text
-
-
-# Example usage
-url = "https://es.wikinews.org/wiki/CBF_y_FIFA_lamentan_la_muerte_de_Carlos_Alberto_Torres,_excapit%C3%A1n_de_la_Selecci%C3%B3n_Brasile%C3%B1a"
-print(scrape_wikinews(url))

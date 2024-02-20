@@ -186,6 +186,9 @@
     color: #234f1e;
     text-shadow: 0.5px 1px 0px #193716;
   }
+  #content-wrapper {
+    margin-top: 50px;
+  }
   body {
     background-color: #91c499;
     font-size: 1.1em;
@@ -237,7 +240,7 @@
     color: #0c0c0c;
   }
   #translation-language-container {
-    margin-top: 50px;
+    margin-top: 25px;
   }
   select {
     background-color: #cbe2c2;
