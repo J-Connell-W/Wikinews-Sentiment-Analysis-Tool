@@ -20,6 +20,7 @@
     };
 
     try {
+      console.log(story);
       const response = await fetch("http://localhost:8000/story/", {
         method: "POST",
         headers: {
@@ -138,6 +139,7 @@
               <select
                 bind:value={$originalLanguage}
                 id="dropdown1"
+                name = "original_language"
                 on:change={handleDropdownChange}
               >
                 {#each languageOptions as option}
@@ -155,6 +157,7 @@
                 bind:value={$translationLanguage}
                 id="dropdown2"
                 on:change={handleDropdownChange}
+                name = "translation_language"
               >
                 {#each languageOptions as option}
                   <option value={option}>{option}</option>

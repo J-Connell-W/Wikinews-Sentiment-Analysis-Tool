@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models import Story
 import central as c
+import json
 
 app = FastAPI()
 
@@ -42,8 +43,12 @@ async def get_story(story_url: str):
 @app.post("/story")
 async def create_story(story: Story):
     stories.append(story)
-    c.master_function(story)
-    return {"message": "Story object has been created!"}
+    send_to_front = c.master_function(story)
+    if type(send_to_front) == dict:
+        json_data = json.dumps(send_to_front)
+        return json_data
+    else:
+        return {"message": "Story object has been created!"}
 
 
 # Delete a story
