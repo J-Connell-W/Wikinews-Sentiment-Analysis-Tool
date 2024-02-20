@@ -139,7 +139,6 @@
                 bind:value={$originalLanguage}
                 id="dropdown1"
                 on:change={handleDropdownChange}
-                required
               >
                 {#each languageOptions as option}
                   <option value={option}>{option}</option>
@@ -156,7 +155,6 @@
                 bind:value={$translationLanguage}
                 id="dropdown2"
                 on:change={handleDropdownChange}
-                required
               >
                 {#each languageOptions as option}
                   <option value={option}>{option}</option>
