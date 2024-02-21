@@ -40,6 +40,37 @@ def translation(story_content, story):
 
 # Translating from German to English
 # Accuracy rate against ChatGPT-4 ( %)
+def translation_german_to_english(story_content):
+    max_length = 500
+    translator_to_english = pipeline(
+        "translation_de_to_en",
+        model="Helsinki-NLP/opus-mt-de-en",
+        max_length=max_length,
+    )
+    # Split the text into chunks
+    chunks = split_into_chunks(story_content, max_length)
+
+    # Process each chunk and concatenate the results
+    translation_english = ""
+    for chunk in chunks:
+        translated_chunk = translator_to_english(chunk)
+        translation_english += translated_chunk[0]["translation_text"] + " "
+
+        return translation_english.strip()
+    
+# Example list of translations
+# translations = ["First translated sentence.", "Second translated sentence.", ...]
+
+# Path to the output file
+# output_file_path = 'path/to/your/output_file.txt'
+
+# Writing the translations to a file
+# with open(output_file_path, 'w', encoding='utf-8') as output_file:
+#     for translation in translations:
+#         output_file.write(translation + '\n')
+
+# The file is now ready to be used with SacreBLEU
+
 # translator_to_english = pipeline("translation_de_to_en", model="Helsinki-NLP/opus-mt-de-en")
 # translation_english = translator_to_english(translation_german[0]['translation_text'])
 # print(translation_english[0]['translation_text'])
