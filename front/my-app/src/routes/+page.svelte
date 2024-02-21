@@ -1,16 +1,22 @@
 <script lang="ts">
   import "@picocss/pico";
-  import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
   let successStatus = " ";
 
+  // svgForDisplacy
+  let fullOriginalTextSplit = writable("");
+  let svgDisplacy = writable("");
+  let summarizationText = writable("");
+  let sentimentAnalysisLabel = writable("");
+  let sentimentAnalysisScore = writable("");
+  let translationText = writable("");
+
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault(); // Prevent the normal submission of the form
     const form = event.target as HTMLFormElement;
     const data = new FormData(form);
-    const value = Object.fromEntries(data.entries());
 
     // Construct the object to match the `Story` model
     const story = {
@@ -31,7 +37,25 @@
       if (response.ok) {
         const result = await response.json();
         successStatus = "yes";
-        console.log("success", result);
+        const fromJsonToObject = JSON.parse(result);
+        console.log(fromJsonToObject.story_content);
+        fromJsonToObject.story_content_split_sentences.forEach(
+          (element: any) => {
+            element = element + ". ";
+          }
+        );
+        fullOriginalTextSplit.set(
+          fromJsonToObject.story_content_split_sentences
+        );
+        svgDisplacy.set(fromJsonToObject.html_get_dep);
+        summarizationText.set(fromJsonToObject.summarization);
+        sentimentAnalysisLabel.set(fromJsonToObject.sentiment_label);
+        sentimentAnalysisScore.set(fromJsonToObject.sentiment_score);
+        translationText.set(fromJsonToObject.translation);
+        console.log($fullOriginalTextSplit);
+        console.log($summarizationText);
+        console.log($translationText);
+        console.log(fromJsonToObject);
       }
       if (!response.ok) {
         successStatus = "no";
@@ -139,7 +163,7 @@
               <select
                 bind:value={$originalLanguage}
                 id="dropdown1"
-                name = "original_language"
+                name="original_language"
                 on:change={handleDropdownChange}
               >
                 {#each languageOptions as option}
@@ -157,7 +181,7 @@
                 bind:value={$translationLanguage}
                 id="dropdown2"
                 on:change={handleDropdownChange}
-                name = "translation_language"
+                name="translation_language"
               >
                 {#each languageOptions as option}
                   <option value={option}>{option}</option>
@@ -178,8 +202,56 @@
       {/if}
     </div>
   </div>
-  <footer>Made by Joel Connell and Thomas Mendenhall</footer>
-</body>
+  <h2>DisplaCy</h2>
+  <p>
+    DisplaCy is a visualizer for rich text annotations. It is designed to
+    provide a visual impression of the syntactic structure of a text. The
+    visualizer can be used to display named entities, part-of-speech tags, and
+    syntactic dependencies. It is a great tool for understanding the structure
+    of a news article.
+  </p>
+  <div id="displacy-section">
+    {#if $fullOriginalTextSplit}
+      <div>
+        <h3 class="red">Original Text</h3>
+        {#each $fullOriginalTextSplit as sentence}
+          <span>{sentence}</span>
+        {/each}
+      </div>
+    {/if}
+    {#if $summarizationText}
+      <div>
+        <h3 class="red">Summarization</h3>
+        <p>{$summarizationText}</p>
+      </div>
+    {/if}
+    {#if $sentimentAnalysisLabel && $sentimentAnalysisScore}
+      <div>
+        <h3 class="red">Sentiment Analysis</h3>
+        <p>
+          Sentiment: {$sentimentAnalysisLabel}
+        </p>
+        <p>
+          Label: {$sentimentAnalysisScore}
+        </p>
+      </div>
+    {/if}
+    {#if $translationText}
+      <div>
+        <h3 class="red">Translation</h3>
+        <p>{$translationText}</p>
+      </div>
+    {/if}
+    {#if $svgDisplacy}
+      <div class="svg-container">
+        {@html $svgDisplacy}
+      </div>
+    {:else}
+      <div>Loading SVG...</div>
+    {/if}
+    <footer>Made by Joel Connell and Thomas Mendenhall</footer>
+  </div></body
+>
 
 <style>
   header {
@@ -215,12 +287,19 @@
   p {
     color: #3d0814;
   }
+  span {
+    color: #3d0814;
+    padding: 0.25em;
+  }
   label {
     color: #3d0814;
     font-weight: bold;
   }
   #translation-checkbox {
     background-color: #3d0814;
+  }
+  .red {
+    color: #3d0814;
   }
   .info-icon {
     padding-left: 10px;
@@ -232,6 +311,10 @@
     background-color: #c5fad1;
     border: solid 3px #234f1e;
     box-shadow: inset 0px 0px 2px 0px #234f1e;
+  }
+  .svg-container {
+    width: 7000px;
+    overflow-x: scroll;
   }
   #main-form {
     width: 66vw;
