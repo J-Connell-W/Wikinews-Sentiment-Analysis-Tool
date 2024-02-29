@@ -14,7 +14,7 @@ def get_html_dep(story_content):
     # doc_list = [token for token in doc if not token.is_stop]
 
     sentence_spans = list(doc.sents)
-    options = {"distance": 100, "compact": True}
+    options = {"distance": 120, "compact": True}
     return displacy.render(sentence_spans, style="dep", options=options)
 
 

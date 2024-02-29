@@ -38,6 +38,7 @@ def translation(story_content, story):
 # translation_german = translator_from_german(story_content)
 # print(translation_german[0]['translation_text'])
 
+
 # Translating from German to English
 # Accuracy rate against ChatGPT-4 ( %)
 def translation_german_to_english(story_content):
@@ -47,17 +48,20 @@ def translation_german_to_english(story_content):
         model="Helsinki-NLP/opus-mt-de-en",
         max_length=max_length,
     )
+    translator_to_english(story_content)
+    return translator_to_english
     # Split the text into chunks
-    chunks = split_into_chunks(story_content, max_length)
+    # chunks = split_into_chunks(story_content, max_length)
 
-    # Process each chunk and concatenate the results
-    translation_english = ""
-    for chunk in chunks:
-        translated_chunk = translator_to_english(chunk)
-        translation_english += translated_chunk[0]["translation_text"] + " "
+    # # Process each chunk and concatenate the results
+    # translation_english = ""
+    # for chunk in chunks:
+    #     translated_chunk = translator_to_english(chunk)
+    #     translation_english += translated_chunk[0]["translation_text"] + " "
 
-        return translation_english.strip()
-    
+    #     return translation_english.strip()
+
+
 # Example list of translations
 # translations = ["First translated sentence.", "Second translated sentence.", ...]
 

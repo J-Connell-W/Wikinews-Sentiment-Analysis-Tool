@@ -1,2 +1,8 @@
 back/venv
 back/__pycache__
+back/testing.py
+back/testin.ipynb
+back/german_english_ref_file.txt
+back/german_english_src_file.txt
+back/german_english.json
+back/german_english.txt
