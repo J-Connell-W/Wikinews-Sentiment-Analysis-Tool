@@ -6,3 +6,8 @@ class Story(BaseModel):
     id: str
     original_language: str
     translation_language: str
+
+
+class NoTranslationStory(BaseModel):
+    id: str
+    original_language: str

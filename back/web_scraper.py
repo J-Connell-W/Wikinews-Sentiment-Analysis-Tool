@@ -40,16 +40,28 @@ def scrape_wikinews(url):
                 pieces.append(child.string)
         return "".join(pieces).strip()
 
-    # Iterate through all elements and stop when 'Fuentes' ID is found in a span
-    for element in target_div.find_all(["p", "li", "span"]):
-        if element.name == "span" and element.get("id") in [
+    # Iterate through all elements and stop when one of these ID's are found in any of the selected tags
+    for element in target_div.find_all(
+        ["p", "li", "span", "a"]
+    ):  # Search through <p>, <li>, <span>, and <a> tags.
+        # Define the array of specific IDs outside the loop for clarity and efficiency.
+        specific_ids = [
             "Fuentes",
             "Sources",
             "Related_news",
             "Sister_links",
             "Noticia_relacionada",
-        ]:
+            "Quellen",
+        ]
+
+        # Check if the element is a <span> or <a> tag and if its id is in the specific_ids array.
+        if element.get("id") in specific_ids:
             break
+
+        # Additional check for <a> tags to see if their text is "Kommentar abgeben".
+        if element.name == "a" and element.text.strip() == "Kommentar abgeben":
+            break
+
         if element.name in ["p", "li"]:
             text = get_element_text(element)
             content.append(text)
