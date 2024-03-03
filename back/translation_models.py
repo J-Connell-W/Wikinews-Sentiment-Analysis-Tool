@@ -2,8 +2,35 @@ import web_scraper as ws
 from transformers import pipeline, MarianTokenizer
 
 
-def split_into_chunks(text, max_length):
-    tokenizer = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-es-en")
+# Entry Function for Translation
+def translation(story_content, original_language, translation_language):
+    if original_language == "English":
+        if translation_language == "German":
+            return translation_english_to_german(story_content)
+        elif translation_language == "Spanish":
+            return translation_english_to_spanish(story_content)
+        else:
+            return story_content
+    elif original_language == "German":
+        if translation_language == "English":
+            return translation_german_to_english(story_content)
+        elif translation_language == "Spanish":
+            return translation_german_to_spanish(story_content)
+        else:
+            return story_content
+    elif original_language == "Spanish":
+        if translation_language == "English":
+            return translation_spanish_to_english(story_content)
+        elif translation_language == "German":
+            return translation_spanish_to_german(story_content)
+        else:
+            return story_content
+    else:
+        return story_content
+
+
+def split_into_chunks(text, max_length, model_name, translator_model):
+    tokenizer = MarianTokenizer.from_pretrained(model_name)
     words = text.split()
     chunks = []
     current_chunk = ""
@@ -17,82 +44,48 @@ def split_into_chunks(text, max_length):
     if current_chunk:
         chunks.append(current_chunk.strip())
 
-    return chunks
+    translated = run_chunk_through_model(chunks, translator_model)
+    return translated
+
+
+def run_chunk_through_model(chunks, translator_model):
+    translation = ""
+    for chunk in chunks:
+        translated_chunk = translator_model(chunk)
+        translation += translated_chunk[0]["translation_text"] + " "
+
+    return translation.strip()
 
 
 # Translation Models
-def translation(story_content, story):
-    if story.original_language == "English" and story.translation_language == "Spanish":
-        return translation_english_to_spanish(story_content)
-    elif (
-        story.original_language == "Spanish" and story.translation_language == "English"
-    ):
-        return translation_spanish_to_english(story_content)
-    else:
-        return story_content
-
-
-# Translating from English to German
-# Accuracy rate against ChatGPT-4 ( %)
-# translator_from_german = pipeline("translation_en_to_de", model="Helsinki-NLP/opus-mt-en-de")
-# translation_german = translator_from_german(story_content)
-# print(translation_german[0]['translation_text'])
 
 
 # Translating from German to English
-# Accuracy rate against ChatGPT-4 ( %)
 def translation_german_to_english(story_content):
-    max_length = 500
+    max_length = 250
     translator_to_english = pipeline(
         "translation_de_to_en",
         model="Helsinki-NLP/opus-mt-de-en",
         max_length=max_length,
     )
-    translator_to_english(story_content)
-    return translator_to_english
-    # Split the text into chunks
-    # chunks = split_into_chunks(story_content, max_length)
-
-    # # Process each chunk and concatenate the results
-    # translation_english = ""
-    # for chunk in chunks:
-    #     translated_chunk = translator_to_english(chunk)
-    #     translation_english += translated_chunk[0]["translation_text"] + " "
-
-    #     return translation_english.strip()
-
-
-# Example list of translations
-# translations = ["First translated sentence.", "Second translated sentence.", ...]
-
-# Path to the output file
-# output_file_path = 'path/to/your/output_file.txt'
-
-# Writing the translations to a file
-# with open(output_file_path, 'w', encoding='utf-8') as output_file:
-#     for translation in translations:
-#         output_file.write(translation + '\n')
-
-# The file is now ready to be used with SacreBLEU
-
-# translator_to_english = pipeline("translation_de_to_en", model="Helsinki-NLP/opus-mt-de-en")
-# translation_english = translator_to_english(translation_german[0]['translation_text'])
-# print(translation_english[0]['translation_text'])
+    german_to_english_translation = split_into_chunks(
+        story_content, max_length, "Helsinki-NLP/opus-mt-de-en", translator_to_english
+    )
+    return german_to_english_translation
 
 
 # Translating from Spanish to English
 # Accuracy rate against ChatGPT-4 (65%)
 # Accuracy rate against Human Translator (poor,fair,good,very good,excellent)
 def translation_spanish_to_english(story_content):
-    max_length = 500
+    max_length = 250
     translator_to_english = pipeline(
         "translation_es_to_en",
         model="Helsinki-NLP/opus-mt-es-en",
         max_length=max_length,
     )
     # Split the text into chunks
-    chunks = split_into_chunks(story_content, max_length)
-
+    chunks = split_into_chunks(story_content, max_length, "Helsinki-NLP/opus-mt-es-en")
     # Process each chunk and concatenate the results
     translation_english = ""
     for chunk in chunks:
@@ -104,7 +97,7 @@ def translation_spanish_to_english(story_content):
 
 # Translating from Spanish to English
 def translation_english_to_spanish(story_content):
-    max_length = 500
+    max_length = 250
     translator_to_spanish = pipeline(
         "translation_en_to_es",
         model="Helsinki-NLP/opus-mt-en-es",

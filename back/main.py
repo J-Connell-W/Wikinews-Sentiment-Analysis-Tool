@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from models import Story
+from models import Story, NoTranslationStory
+from typing import Union
 import central as c
 import json
 
@@ -41,11 +42,19 @@ async def get_story(story_url: str):
 
 
 @app.post("/story")
-async def create_story(story: Story):
+async def create_story(story: Union[Story, NoTranslationStory]):
     stories.append(story)
     send_to_front = c.master_function(story)
     if type(send_to_front) == dict:
         json_data = json.dumps(send_to_front)
+
+        # Define the path to the frontend Data folder
+        file_path = "../front/my-app/src/Data/dummy_data_move_to_static_and_format.json"
+
+        # Write the JSON data to the file
+        with open(file_path, "w") as file:
+            file.write(json_data)
+
         return json_data
     else:
         return {"message": "Story object has been created!"}

@@ -70,8 +70,9 @@ def check_wiki(url):
         # Check if any a tag contains 'Create an account'
         for tag in a_tags:
             if (
-                "create an account" in tag.get_text()
+                "create this page" in tag.get_text()
                 or "crea una cuenta" in tag.get_text()
+                or "Servercache zu leeren" in tag.get_text()
             ):
                 return False
 
