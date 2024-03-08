@@ -6,7 +6,7 @@
   import { Status, LanguageOptions, DisplayGroup } from "../Data/Enums";
   let successStatus = " ";
   let fullOriginalTextSplit = writable<string[]>([]);
-  let svgDisplacy = writable<string>("");
+  let svgDisplacy = writable<string | null>("");
   let summarizationText = writable<string>("");
   let summarizationTranslationText = writable<string>("");
   let sentimentAnalysisLabel = writable<string>("");
@@ -120,7 +120,10 @@
   $: $svgDisplacy, splitSVGs($svgDisplacy);
 
   // Function to split SVGs
-  function splitSVGs(svgString: string) {
+  function splitSVGs(svgString: string | null) {
+    if (svgString === null) {
+      return;
+    }
     const svgPattern = /<svg[\s\S]*?<\/svg>/g;
     // Ensure we default to an empty array if no matches are found
     const matches = svgString.match(svgPattern);
@@ -400,9 +403,11 @@
               >Summarization</button
             >
             <button class="bttn" on:click={sentimentTab}>Sentiment</button>
-            <button class="bttn" on:click={visualizationTab}
-              >Visualization</button
-            >
+            {#if $svgDisplacy}
+              <button class="bttn" on:click={visualizationTab}
+                >Visualization</button
+              >
+            {/if}
           </div>
         {:else if $isThereTranslation === DisplayGroup.TRANSLATION}
           <div class="button-grouping" role="group">
@@ -411,9 +416,11 @@
               >Summarization</button
             >
             <button class="bttn" on:click={sentimentTab}>Sentiment</button>
-            <button class="bttn" on:click={visualizationTab}
-              >Visualization</button
-            >
+            {#if $svgDisplacy}
+              <button class="bttn" on:click={visualizationTab}
+                >Visualization</button
+              >
+            {/if}
           </div>
         {/if}
 
@@ -436,7 +443,7 @@
             </div>
           </div>
         {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION}
-          <div class="standard-margin">
+          <div class="standard-margin summary-alone">
             <h3 class="main-accent-color">Summary</h3>
             <p class="main-accent-color">{$summarizationText}</p>
           </div>
@@ -518,8 +525,8 @@
     text-align: center;
   }
   .title {
-    text-shadow: 0.5px 1px 0px #193716;
-    color: #234f1e;
+    text-shadow: 1.5px 1px 0px #6b4e1f;
+    color: #f5a628;
   }
   #content-wrapper {
     margin-top: 50px;
@@ -544,13 +551,13 @@
     font-weight: bold;
   }
   .checkbox-translation-background-color {
-    background-color: #3d0814;
+    background-color: #f5a628;
   }
   .main-background-color {
-    background-color: #91c499;
+    background-color: rgb(51, 52, 57);
   }
   .main-accent-color {
-    color: #3d0814;
+    color: #f5a628;
   }
 
   .info-icon {
@@ -560,8 +567,8 @@
     height: 10px;
     margin-left: 15px;
     border-radius: 50%;
-    background-color: #c5fad1;
-    border: solid 3px #234f1e;
+    background-color: #000000;
+    border: solid 3px #f5a628;
     box-shadow: inset 0px 0px 2px 0px #234f1e;
   }
   #main-form {
@@ -569,7 +576,7 @@
   }
   #url-input {
     margin: 30px;
-    background-color: #cbe2c2;
+    background-color: #d3d3d3;
     color: #0c0c0c;
     width: 70%;
   }
@@ -582,26 +589,27 @@
     width: 30%;
   }
   .form-input-colors {
-    background-color: #cbe2c2;
+    background-color: #d3d3d3;
     color: #0c0c0c;
   }
   .bttn {
-    background-color: #3d0814;
+    background-color: #7f1f0a;
     border: 2px solid #442f38;
-    color: #91c499;
+    color: #fffcff;
     width: 33%;
     margin: auto;
   }
   .bttn:hover {
-    background-color: #442f38;
+    background-color: #53180b;
     border: 2px solid #361010;
-    color: #f194b4;
+    color: #fffcff;
   }
   .bttn:focus {
-    background-color: #442f38;
+    background-color: #53180b;
     border: 2px solid #361010;
-    color: #f194b4;
+    color: #fffcff;
   }
+
   .button-grouping {
     width: 100%;
     padding: 50px;
@@ -609,6 +617,8 @@
   }
   .button-grouping button {
     --pico-group-box-shadow: none;
+    background-color: #bc5750;
+    color: black;
   }
   .button-grouping:focus button {
     --pico-group-box-shadow: none;
@@ -685,15 +695,38 @@
 
   #translation-text {
     width: 45%;
-    padding-left: 20px;
-    padding-right: 20px;
-    border: #361010 solid 2px;
+    padding-top: 25px;
+    padding-left: 30px;
+    padding-right: 30px;
+    border: #f5a628 solid 2px;
   }
   #original-text {
     width: 45%;
-    padding-left: 20px;
-    padding-right: 20px;
-    border: #361010 solid 2px;
+    padding-top: 25px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 25px;
+    border: #f5a628 solid 2px;
+  }
+  .summary-alone {
+    margin: auto;
+    padding-top: 25px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 25px;
+    margin-bottom: 50px;
+    border: #f5a628 solid 2px;
+  }
+
+  #sentiment-section {
+    width: fit-content;
+    margin: auto;
+    padding-top: 25px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 25px;
+    margin-bottom: 50px;
+    border: #f5a628 solid 2px;
   }
   #displacy-original-text {
     width: 100%;
@@ -716,9 +749,9 @@
   footer {
     margin-top: 15px;
     text-align: center;
-    color: #91c499;
+    color: #2b2b2b;
     font-size: 1.1em;
-    background-color: #234f1e;
+    background-color: #f5a628;
     width: 100%;
     height: 50px;
   }

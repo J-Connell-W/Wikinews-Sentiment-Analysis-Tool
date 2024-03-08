@@ -85,14 +85,11 @@ def translation_spanish_to_english(story_content):
         max_length=max_length,
     )
     # Split the text into chunks
-    chunks = split_into_chunks(story_content, max_length, "Helsinki-NLP/opus-mt-es-en")
-    # Process each chunk and concatenate the results
-    translation_english = ""
-    for chunk in chunks:
-        translated_chunk = translator_to_english(chunk)
-        translation_english += translated_chunk[0]["translation_text"] + " "
+    spanish_to_english_translation = split_into_chunks(
+        story_content, max_length, "Helsinki-NLP/opus-mt-es-en", translator_to_english
+    )
 
-    return translation_english.strip()
+    return spanish_to_english_translation
 
 
 # Translating from Spanish to English
@@ -106,15 +103,11 @@ def translation_english_to_spanish(story_content):
     # translation_spanish = translator_to_spanish(story_content)
     # return translation_spanish[0]["translation_text"]
     # Split the text into chunks
-    chunks = split_into_chunks(story_content, max_length)
+    translation_english_to_spanish = split_into_chunks(
+        story_content, max_length, "Helsinki-NLP/opus-mt-en-es", translator_to_spanish
+    )
 
-    # Process each chunk and concatenate the results
-    translation_spanish = ""
-    for chunk in chunks:
-        translated_chunk = translator_to_spanish(chunk)
-        translation_spanish += translated_chunk[0]["translation_text"] + " "
-
-    return translation_spanish.strip()
+    return translation_english_to_spanish
 
 
 # Translating from Chinese to English

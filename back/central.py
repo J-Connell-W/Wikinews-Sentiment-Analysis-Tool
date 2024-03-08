@@ -55,7 +55,7 @@ def master_function(story):
 
     # Sentiment Analysis
     print("Sentiment Analysis...")
-    sentiment = sa.sentiment_analysis(story_content)
+    sentiment = sa.sentiment_analysis(story_content, story.original_language)
 
     sentiment_label = sentiment.get("sentiment")
     sentiment_score = sentiment.get("score")
@@ -65,7 +65,7 @@ def master_function(story):
     # ourSentiment_score = ourSentimentModel[0].get("score")
 
     # # Visualization
-    html_get_dep = vi.get_html_dep(story_content)
+    html_get_dep = vi.get_html_dep(story_content, story.original_language)
 
     # If there is a translation, send to Front End with translation or else do not send translation
     if isTranslation:
@@ -77,8 +77,6 @@ def master_function(story):
             "summarizationTranslated": summarizationTranslated,
             "sentiment_label": sentiment_label,
             "sentiment_score": sentiment_score,
-            # ourSentiment_label: ourSentiment_label,
-            # ourSentiment_score: ourSentiment_score,
             "html_get_dep": html_get_dep,
         }
     else:
@@ -87,7 +85,5 @@ def master_function(story):
             "summarization": summarization,
             "sentiment_label": sentiment_label,
             "sentiment_score": sentiment_score,
-            # ourSentiment_label: ourSentiment_label,
-            # ourSentiment_score: ourSentiment_score,
             "html_get_dep": html_get_dep,
         }
