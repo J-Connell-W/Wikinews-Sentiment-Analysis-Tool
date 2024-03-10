@@ -56,8 +56,3 @@ def sentiment_analysis(text, source_language):
     return {"sentiment": sentiment, "score": score}
 
 
-# Example usage
-# text = "This is an example text to analyze."
-# source_language = "English"  # Change as needed
-# result = sentiment_analysis(text, source_language)
-# print(result)

@@ -29,7 +29,6 @@ def scrape_wikinews(url):
     content = []
 
     def get_element_text(element):
-        """Extracts and constructs text from an element, handling nested tags appropriately."""
         pieces = []
         for child in element.children:
             if child.name == "a":
