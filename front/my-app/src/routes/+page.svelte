@@ -6,16 +6,21 @@
   import { Status, LanguageOptions, DisplayGroup } from "../Data/Enums";
   let successStatus = " ";
   let fullOriginalTextSplit = writable<string[]>([]);
-  let svgDisplacy = writable<string | null>("");
+  let translationText = writable<string>("");
   let summarizationText = writable<string>("");
   let summarizationTranslationText = writable<string>("");
   let sentimentAnalysisLabel = writable<string>("");
   let sentimentAnalysisScore = writable<string>("");
 
   // Variables for the SVGs
-  let translationText = writable<string>("");
-  let activeIndexSVG = writable<number>(-1);
-  let individualSVGs = writable<string[]>([]);
+  // Dependency Parsing SVG Vars
+  let displacyDepSvg = writable<string | null>("");
+  let activeIndexDep = writable<number>(-1);
+  let individualDepSVGs = writable<string[]>([]);
+  // Named Entity Recognition SVG Vars
+  let Ner = writable<string>("");
+  //custom model error
+  let customModelError = writable<string>("");
 
   // variables for the dropdown selections
   let originalLanguage = writable("English");
@@ -34,64 +39,95 @@
 
   let storyToSend = {};
 
-  // Instantiating this to hold the dummy data coming from json
-  // Used for testing without having to make a request to the server
-  onMount(async () => {
-    currentStatus.set(Status.LOADING);
-    try {
-      // If the file is in the 'static' directory
-      const response = await fetch("dummy_data_SpanishToEnglish.json");
-      if (response.ok) {
-        const result = await response.json();
-        const fromJsonToObject = result[0];
-        console.log(fromJsonToObject);
-        fromJsonToObject.story_content_split_sentences.forEach(
-          (element: any) => {
-            element = element + ". ";
-          }
-        );
-        fullOriginalTextSplit.set(
-          (
-            fromJsonToObject.story_content_split_sentences as (
-              | string
-              | null
-              | undefined
-            )[]
-          ).filter(
-            (sentence): sentence is string =>
-              typeof sentence === "string" && sentence.trim() !== ""
-          )
-        );
-        svgDisplacy.set(fromJsonToObject.html_get_dep);
-        summarizationText.set(fromJsonToObject.summarization);
-        sentimentAnalysisLabel.set(fromJsonToObject.sentiment_label);
-        sentimentAnalysisScore.set(fromJsonToObject.sentiment_score);
-        if (fromJsonToObject.translation === undefined) {
-          isThereTranslation.set(DisplayGroup.NOTRANSLATION);
-          console.log("Translation undefined: " + isThereTranslation);
-        } else if (fromJsonToObject.translation !== undefined) {
-          translationText.set(fromJsonToObject.translation);
-          summarizationTranslationText.set(
-            fromJsonToObject.summarizationTranslated
-          );
-          isThereTranslation.set(DisplayGroup.TRANSLATION);
-          console.log("Translation not undefined: " + isThereTranslation);
-        } else {
-          isThereTranslation.set(DisplayGroup.NOTRANSLATION);
-          console.log("Translation else: " + isThereTranslation);
-        }
-        currentStatus.set(Status.SUCCESS);
-      }
-      if (!response.ok) {
-        currentStatus.set(Status.ERROR);
-        throw new Error(`Error: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("There was an error submitting the form", error);
-      currentStatus.set(Status.ERROR);
-    }
-  });
+  // The checkboxes with their names, checked value, and info text for the info icon hover text.
+  let checkboxes = [
+    {
+      name: "Translate",
+      checked: true,
+      infoText: "Would you like to translate the news article?",
+    },
+    {
+      name: "Summarize",
+      checked: true,
+      infoText: "Would you like to summarize the article?",
+    },
+    {
+      name: "Sentiment Analysis",
+      checked: true,
+      infoText: "Perform Sentiment Analysis on the Article?",
+    },
+    {
+      name: "Vizualize",
+      checked: true,
+      infoText:
+        "Show dependency parsing and named entity recognition by sentence. Currently only for English stories.",
+    },
+  ];
 
+  // A reactive statement that checks if all checkboxes are unchecked
+  $: allUnchecked = checkboxes.every((checkbox) => !checkbox.checked);
+  $: atLeastOneChecked = checkboxes.some((checkbox) => checkbox.checked);
+
+  // Instantiating this to hold the dummy data coming from json
+  // Used for testing without having to make a request to the api
+  // onMount(async () => {
+
+  //   currentStatus.set(Status.LOADING);
+  //   try {
+  //     // If the file is in the 'static' directory
+  //     const response = await fetch("dummy_data_SpanishToEnglish.json");
+  //     if (response.ok) {
+  //       const result = await response.json();
+  //       const fromJsonToObject = result[0];
+  //       console.log(fromJsonToObject);
+  //       fromJsonToObject.story_content_split_sentences.forEach(
+  //         (element: any) => {
+  //           element = element + ". ";
+  //         }
+  //       );
+  //       fullOriginalTextSplit.set(
+  //         (
+  //           fromJsonToObject.story_content_split_sentences as (
+  //             | string
+  //             | null
+  //             | undefined
+  //           )[]
+  //         ).filter(
+  //           (sentence): sentence is string =>
+  //             typeof sentence === "string" && sentence.trim() !== ""
+  //         )
+  //       );
+  //       svgDisplacy.set(fromJsonToObject.html_get_dep);
+  //       summarizationText.set(fromJsonToObject.summarization);
+  //       sentimentAnalysisLabel.set(fromJsonToObject.sentiment_label);
+  //       sentimentAnalysisScore.set(fromJsonToObject.sentiment_score);
+  //       if (fromJsonToObject.translation === undefined) {
+  //         isThereTranslation.set(DisplayGroup.NOTRANSLATION);
+  //         console.log("Translation undefined: " + isThereTranslation);
+  //       } else if (fromJsonToObject.translation !== undefined) {
+  //         translationText.set(fromJsonToObject.translation);
+  //         summarizationTranslationText.set(
+  //           fromJsonToObject.summarizationTranslated
+  //         );
+  //         isThereTranslation.set(DisplayGroup.TRANSLATION);
+  //         console.log("Translation not undefined: " + isThereTranslation);
+  //       } else {
+  //         isThereTranslation.set(DisplayGroup.NOTRANSLATION);
+  //         console.log("Translation else: " + isThereTranslation);
+  //       }
+  //       currentStatus.set(Status.SUCCESS);
+  //     }
+  //     if (!response.ok) {
+  //       currentStatus.set(Status.ERROR);
+  //       throw new Error(`Error: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("There was an error submitting the form", error);
+  //     currentStatus.set(Status.ERROR);
+  //   }
+  // });
+
+  // Functions to handle the display state of the tabs
   function translationTab() {
     currentDisplayGroup = DisplayGroup.TRANSLATION;
   }
@@ -108,6 +144,11 @@
     currentDisplayGroup = DisplayGroup.VISUALIZATION;
   }
 
+  /**
+   * Function to format the sentence with a period at the end
+   * @param sentence
+   * @param isLast
+   */
   function formatSentence(sentence: string, isLast: boolean) {
     // Check if the sentence ends with a period
     if (!isLast && !sentence.trim().endsWith(".")) {
@@ -117,22 +158,23 @@
   }
 
   // Reactive statement to split SVGs
-  $: $svgDisplacy, splitSVGs($svgDisplacy);
+  $: $displacyDepSvg, splitSVGs($displacyDepSvg, "dep");
 
   // Function to split SVGs
-  function splitSVGs(svgString: string | null) {
+  function splitSVGs(svgString: string | null, type: "dep") {
     if (svgString === null) {
       return;
     }
+
+    // Regular expression to match the SVG tags
     const svgPattern = /<svg[\s\S]*?<\/svg>/g;
     // Ensure we default to an empty array if no matches are found
     const matches = svgString.match(svgPattern);
-    individualSVGs.set(matches ?? []);
+    individualDepSVGs.set(matches ?? []);
   }
-  function setActiveSVG(index: number) {
-    activeIndexSVG.set(index);
+  function setActiveSVG(index: number, type: "dep") {
+    activeIndexDep.set(index);
   }
-
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault(); // Prevent the normal submission of the form
     const form = event.target as HTMLFormElement;
@@ -150,7 +192,8 @@
     };
 
     try {
-      if (isThereTranslation && isChecked) {
+      // if the tranlsation box is checked.
+      if (isThereTranslation && checkboxes[0].checked) {
         storyToSend = story;
       } else {
         storyToSend = storyNoTanslation;
@@ -167,44 +210,47 @@
         const result = await response.json();
         successStatus = "yes";
         const fromJsonToObject = JSON.parse(result);
-        console.log(fromJsonToObject.summarization);
-        console.log(fromJsonToObject.summarizationTranslated);
-        console.log(fromJsonToObject);
-        fromJsonToObject.story_content_split_sentences.forEach(
-          (element: any) => {
-            element = element + ". ";
-          }
-        );
-        fullOriginalTextSplit.set(
-          (
-            fromJsonToObject.story_content_split_sentences as (
-              | string
-              | null
-              | undefined
-            )[]
-          ).filter(
-            (sentence): sentence is string =>
-              typeof sentence === "string" && sentence.trim() !== ""
-          )
-        );
-        svgDisplacy.set(fromJsonToObject.html_get_dep);
+        if (fromJsonToObject.story_content_split_sentences !== undefined) {
+          fromJsonToObject.story_content_split_sentences.forEach(
+            (element: any) => {
+              element = element + ". ";
+            }
+          );
+
+          fullOriginalTextSplit.set(
+            (
+              fromJsonToObject.story_content_split_sentences as (
+                | string
+                | null
+                | undefined
+              )[]
+            ).filter(
+              (sentence): sentence is string =>
+                typeof sentence === "string" && sentence.trim() !== ""
+            )
+          );
+        }
+
+        translationText.set(fromJsonToObject.translation);
         summarizationText.set(fromJsonToObject.summarization);
+        summarizationTranslationText.set(
+          fromJsonToObject.summarizationTranslated
+        );
         sentimentAnalysisLabel.set(fromJsonToObject.sentiment_label);
         sentimentAnalysisScore.set(fromJsonToObject.sentiment_score);
+        displacyDepSvg.set(fromJsonToObject.html_get_dep);
+        Ner.set(fromJsonToObject.html_get_ner);
+        customModelError.set(fromJsonToObject.custom_model_error);
+
         if (fromJsonToObject.translation === undefined) {
           isThereTranslation.set(DisplayGroup.NOTRANSLATION);
         } else if (fromJsonToObject.translation !== undefined) {
-          translationText.set(fromJsonToObject.translation);
-          summarizationTranslationText.set(
-            fromJsonToObject.summarizationTranslated
-          );
           isThereTranslation.set(DisplayGroup.TRANSLATION);
         } else {
           isThereTranslation.set(DisplayGroup.NOTRANSLATION);
         }
         currentStatus.set(Status.SUCCESS);
-      }
-      if (!response.ok) {
+      } else {
         currentStatus.set(Status.ERROR);
         throw new Error(`Error: ${response.status}`);
       }
@@ -213,9 +259,6 @@
       currentStatus.set(Status.ERROR);
     }
   }
-
-  // Checkbox boolean
-  let isChecked = false;
 
   /**
    * Check the URL to determine the source language
@@ -326,22 +369,19 @@
                   <option value={option}>{option}</option>
                 {/each}
               </select>
-              <label class="main-accent-color">
-                <input
-                  class="checkbox-translation-background-color"
-                  type="checkbox"
-                  name="translation_checkbox"
-                  bind:checked={isChecked}
-                />
-                Translate
-                <em
-                  class="info-icon"
-                  data-tooltip="Would you like to translate the news article?"
-                  >?</em
-                >
-              </label>
-
-              {#if isChecked}
+              {#each checkboxes as checkbox, index (checkbox.name)}
+                <label class="main-accent-color">
+                  <input
+                    class="checkbox-translation-background-color"
+                    type="checkbox"
+                    name="translation_checkbox"
+                    bind:checked={checkboxes[index].checked}
+                  />
+                  {checkbox.name}
+                  <em class="info-icon" data-tooltip={checkbox.infoText}>?</em>
+                </label>
+              {/each}
+              {#if checkboxes[1].checked}
                 <div id="translation-language-container" transition:slide>
                   <label for="dropdown2" class="main-accent-color"
                     >Translation Language <em
@@ -378,7 +418,7 @@
     {#if $currentStatus === Status.LOADING || $currentStatus === Status.ERROR}
       <div class="loading-div">
         {#if $currentStatus === Status.LOADING}
-          <div class="loading-text main-accent-color">
+          <div class="loading-text spinner-color">
             Running The Story Through AI Please Wait...
           </div>
           <div class="loading-icon" />
@@ -390,10 +430,16 @@
       </div>
     {:else if $currentStatus === Status.SUCCESS}
       <div id="output-container">
-        {#if currentDisplayGroup === DisplayGroup.UNSELECTED}
+        {#if currentDisplayGroup === DisplayGroup.UNSELECTED && atLeastOneChecked}
           <div class="output-sections" id="unselected-section">
             <h2 class="main-accent-color">
               Please select a tab to view the output
+            </h2>
+          </div>
+        {:else if currentDisplayGroup === DisplayGroup.UNSELECTED && allUnchecked}
+          <div class="output-sections" id="unselected-section">
+            <h2 class="main-accent-color">
+              Select at least one of the checkboxes to view the outputs.
             </h2>
           </div>
         {/if}
@@ -403,20 +449,25 @@
               >Summarization</button
             >
             <button class="bttn" on:click={sentimentTab}>Sentiment</button>
-            {#if $svgDisplacy}
+            {#if $displacyDepSvg}
               <button class="bttn" on:click={visualizationTab}
                 >Visualization</button
               >
             {/if}
           </div>
-        {:else if $isThereTranslation === DisplayGroup.TRANSLATION}
+        {:else if $isThereTranslation === DisplayGroup.TRANSLATION && checkboxes[1].checked}
           <div class="button-grouping" role="group">
-            <button class="bttn" on:click={translationTab}>Translation</button>
-            <button class="bttn" on:click={summarizationTranslationTab}
-              >Summarization</button
-            >
+            {#if checkboxes[1].checked}
+              <button class="bttn" on:click={translationTab}>Translation</button
+              >
+            {/if}
+            {#if $summarizationTranslationText && summarizationTranslationTab && checkboxes[1].checked}
+              <button class="bttn" on:click={summarizationTranslationTab}
+                >Summarization</button
+              >
+            {/if}
             <button class="bttn" on:click={sentimentTab}>Sentiment</button>
-            {#if $svgDisplacy}
+            {#if $displacyDepSvg && checkboxes[3].checked}
               <button class="bttn" on:click={visualizationTab}
                 >Visualization</button
               >
@@ -426,10 +477,6 @@
 
         {#if currentDisplayGroup === DisplayGroup.TRANSLATION}
           <div class="output-sections" id="translation-section">
-            <div id="translation-text">
-              <h3 class="main-accent-color">Translation</h3>
-              <p class="main-accent-color">{$translationText}</p>
-            </div>
             <div id="original-text">
               <h3 class="main-accent-color">Original Text</h3>
               {#each $fullOriginalTextSplit as sentence, index}
@@ -441,13 +488,17 @@
                 >
               {/each}
             </div>
+            <div id="translation-text">
+              <h3 class="main-accent-color">Translation</h3>
+              <p class="main-accent-color">{$translationText}</p>
+            </div>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION}
+        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION && checkboxes[1].checked}
           <div class="standard-margin summary-alone">
             <h3 class="main-accent-color">Summary</h3>
             <p class="main-accent-color">{$summarizationText}</p>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION_TRANSLATION}
+        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION_TRANSLATION && checkboxes[1].checked}
           <div class="output-sections" id="translation-section">
             <div id="translation-text">
               <h3 class="main-accent-color">Translated Summary</h3>
@@ -458,7 +509,7 @@
               <p class="main-accent-color">{$summarizationText}</p>
             </div>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SENTIMENT}
+        {:else if currentDisplayGroup === DisplayGroup.SENTIMENT && checkboxes[2].checked}
           <div class="standard-margin" id="sentiment-section">
             <h3 class="main-accent-color">Sentiment Analysis</h3>
             <p class="main-accent-color">
@@ -468,7 +519,7 @@
               Label: {$sentimentAnalysisScore}
             </p>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.VISUALIZATION}
+        {:else if currentDisplayGroup === DisplayGroup.VISUALIZATION && checkboxes[3].checked}
           <div class="output-sections" id="visualization-section">
             <div id="displacy-section">
               <h2 class="main-accent-color">DisplaCy</h2>
@@ -495,7 +546,7 @@
                 <div class="sentence-container">
                   <button
                     class="bttn dep-bttn"
-                    on:click={() => setActiveSVG(index)}
+                    on:click={() => setActiveSVG(index, "dep")}
                     tabindex="0"
                   >
                     {formatSentence(
@@ -504,13 +555,17 @@
                     )}
                   </button>
                   <!-- Render SVG directly below the button if it is the active index -->
-                  {#if $activeIndexSVG === index}
+                  {#if $activeIndexDep === index}
                     <div class="svg-container">
-                      {@html $individualSVGs[$activeIndexSVG]}
+                      {@html $individualDepSVGs[$activeIndexDep]}
                     </div>
                   {/if}
                 </div>
               {/each}
+              <div class="ner-container">
+                <h3>Named Entity Recognition</h3>
+                {@html $Ner}
+              </div>
             </div>
           </div>
         {/if}
@@ -569,7 +624,7 @@
     border-radius: 50%;
     background-color: #000000;
     border: solid 3px #f5a628;
-    box-shadow: inset 0px 0px 2px 0px #234f1e;
+    box-shadow: inset 0px 0px 2px 0px #6b4e1f;
   }
   #main-form {
     color: #d5ddc5;
@@ -636,7 +691,7 @@
   .loading-icon {
     border: 25px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    border-top: 20px solid #2d729f;
+    border-top: 20px solid #f5a628;
     margin-top: 50px;
     margin-left: 20px;
     width: 200px;
@@ -644,6 +699,7 @@
     -webkit-animation: spin 2s linear infinite; /* Safari */
     animation: spin 2s linear infinite;
   }
+
   /* Safari */
   @-webkit-keyframes spin {
     0% {
@@ -671,6 +727,17 @@
     margin-left: 50px;
     margin-right: 50px;
     margin-bottom: 50px;
+  }
+  .spinner-color {
+    color: #f5a628;
+  }
+  .ner-container {
+    padding: 15px;
+    margin-top: 30px;
+    border: #f5a628 solid 2px;
+  }
+  .ner-container h3 {
+    color: #f5a628;
   }
   .svg-container {
     margin-top: 0.5em;

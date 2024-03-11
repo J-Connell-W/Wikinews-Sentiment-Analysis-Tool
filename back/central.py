@@ -33,7 +33,6 @@ def master_function(story):
             story_content, story.original_language, story.translation_language
         )
         # Make copy of translation
-
         isTranslation = True
     else:
         print("Skipped Translating")
@@ -55,35 +54,30 @@ def master_function(story):
 
     # Sentiment Analysis
     print("Sentiment Analysis...")
-    sentiment = sa.sentiment_analysis(story_content, story.original_language)
-
+    sentiment, custom_model_error_message = sa.sentiment_analysis(
+        story_content, story.original_language
+    )
     sentiment_label = sentiment.get("sentiment")
     sentiment_score = sentiment.get("score")
-    # Our Sentiment Analysis Model will get a label and score here and we can use it for english or translate then use it and send it back to the front end
-    # ourSentimentModel = whatever we call it
-    # ourSentiment_label = ourSentimentModel[0].get("label")
-    # ourSentiment_score = ourSentimentModel[0].get("score")
+    custom_model_error = custom_model_error_message
 
-    # # Visualization
-    html_get_dep = vi.get_html_dep(story_content, story.original_language)
+    # Visualization
+    # If the story's source language is in English, we can visualize the dependency parsing and named entity recognition in addition to the translation.
+    # This is because the visualization tends to make mistakes for other languages when showing the dependency parsing and named entity recognition.
+    if story.original_language == "English":
+        print("Visualize...")
+        html_get_dep, html_get_ner = vi.visualize(story_content)
 
-    # If there is a translation, send to Front End with translation or else do not send translation
-    if isTranslation:
-        # Send to Front End
-        return {
-            "story_content_split_sentences": story_content_split,
-            "translation": postTranslationStepStory,
-            "summarization": summarization,
-            "summarizationTranslated": summarizationTranslated,
-            "sentiment_label": sentiment_label,
-            "sentiment_score": sentiment_score,
-            "html_get_dep": html_get_dep,
-        }
-    else:
-        return {
-            "story_content_split_sentences": story_content_split,
-            "summarization": summarization,
-            "sentiment_label": sentiment_label,
-            "sentiment_score": sentiment_score,
-            "html_get_dep": html_get_dep,
-        }
+    print(html_get_ner)
+    # Return the results of the tools.
+    return {
+        "story_content_split_sentences": story_content_split,
+        "translation": postTranslationStepStory,
+        "summarization": summarization,
+        "summarizationTranslated": summarizationTranslated,
+        "sentiment_label": sentiment_label,
+        "sentiment_score": sentiment_score,
+        "html_get_dep": html_get_dep,
+        "html_get_ner": html_get_ner,
+        "custom_model_error": custom_model_error,
+    }
