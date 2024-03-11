@@ -1,6 +1,22 @@
 # WikiNews Sentiment Analysis, Translation, Summarization Tool
 
-## sacreBLEU
+## Introduction
+
+## Table of Contents
+
+## Installation
+
+## Usage
+
+## License
+
+## Acknowledgements
+
+## Methodology
+
+## References
+
+### sacreBLEU
 
 sacreBLEU is used in this project to get a gauge of the accuracy of a few models which were used in the translation step.
 
@@ -20,7 +36,7 @@ sacreBLEU is used in this project to get a gauge of the accuracy of a few models
 
 [Post, Matt. "A Call for Clarity in Reporting BLEU Scores." Proceedings of the Third Conference on Machine Translation: Research Papers, Belgium, Brussels, Association for Computational Linguistics, Oct. 2018, pp. 186-191.](https://www.aclweb.org/anthology/W18-6319)
 
-## Data Source: CCMatrix v1
+### Data Source: CCMatrix v1
 
 The CCMatrix v1 is data used to create a source and reference set for the use of the sacreBLEU scoring.
 
