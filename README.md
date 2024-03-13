@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is a web application that allows users to input a news article in English, German or Spanish and then translate it to one of the remaining two languages. The user can also analyze the sentiment of the article and summarize it. The project is built using HuggingFace's transformers library and FastAPI for the backend. The frontend is built using Svelte, TypeScript, and PicoCSS. This project was built by Joel connell and Thomas Mendenhall.
+This project is a web application that allows users to input a news article in English, German or Spanish and then translate it to one of the remaining two languages. The user can also analyze the sentiment of the article and summarize it. The project is built using HuggingFace's transformers library and FastAPI for the backend. The frontend is built using Svelte, TypeScript, and PicoCSS. This project was built by Joel Connell and Thomas Mendenhall.
 
 ## Installation
 
