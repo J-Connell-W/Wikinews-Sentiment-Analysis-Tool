@@ -32,6 +32,8 @@ def master_function(story):
         postTranslationStepStory = tm.translation(
             story_content, story.original_language, story.translation_language
         )
+        print(type(postTranslationStepStory))
+        print(postTranslationStepStory)
         # Make copy of translation
         isTranslation = True
     else:
@@ -41,18 +43,23 @@ def master_function(story):
 
     print(postTranslationStepStory)
     print(story_content)
-    # Summarization
-    if isTranslation:
-        print("Translation Summarizing...")
-        summarizationTranslated = su.summarization(postTranslationStepStory)
-        print("Normal Summarizing...")
-        summarization = su.summarization(story_content)
 
+    if story.summarization:
+        # Summarization
+        if isTranslation:
+            print("Translation Summarizing...")
+            summarizationTranslated = su.summarization(postTranslationStepStory)
+            print("Normal Summarizing...")
+            summarization = su.summarization(story_content)
+
+        else:
+            print("Normal Summarizing...")
+            summarization = su.summarization(postTranslationStepStory)
+            summarizationTranslated = None
     else:
-        print("Normal Summarizing...")
-        summarization = su.summarization(postTranslationStepStory)
+        summarization = None
+        summarizationTranslated = None
 
-    # Sentiment Analysis
     print("Sentiment Analysis...")
     sentiment, custom_model_error_message = sa.sentiment_analysis(
         story_content, story.original_language
@@ -64,11 +71,12 @@ def master_function(story):
     # Visualization
     # If the story's source language is in English, we can visualize the dependency parsing and named entity recognition in addition to the translation.
     # This is because the visualization tends to make mistakes for other languages when showing the dependency parsing and named entity recognition.
-    if story.original_language == "English":
+    if story.original_language == "English" and story.visualization:
         print("Visualize...")
         html_get_dep, html_get_ner = vi.visualize(story_content)
-
-    print(html_get_ner)
+    else:
+        html_get_dep = None
+        html_get_ner = None
     # Return the results of the tools.
     return {
         "story_content_split_sentences": story_content_split,

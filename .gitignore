@@ -5,3 +5,4 @@ back/sacreBLEU_Evaluation.ipynb
 back/german_english.json
 back/german_english.txt
 front/my-app/node_modules
+front/my-app/src/Data/dummy_data_move_to_static_and_format.json

@@ -98,8 +98,9 @@ def translation_spanish_to_english(story_content):
         max_length=max_length,
     )
     # Split the text into chunks
-    spanish_to_english_translation = run_through_model
-    (story_content, max_length, "Helsinki-NLP/opus-mt-es-en", translator_to_english)
+    spanish_to_english_translation = run_through_model(
+        story_content, max_length, "Helsinki-NLP/opus-mt-es-en", translator_to_english
+    )
     return spanish_to_english_translation
 
 
@@ -126,8 +127,9 @@ def translation_spanish_to_german(story_content):
         max_length=max_length,
     )
     # Split the text into chunks
-    spanish_to_german_translation = run_through_model
-    (story_content, max_length, "Helsinki-NLP/opus-mt-es-de", translator_to_german)
+    spanish_to_german_translation = run_through_model(
+        story_content, max_length, "Helsinki-NLP/opus-mt-es-de", translator_to_german
+    )
     return spanish_to_german_translation
 
 
@@ -140,6 +142,7 @@ def translation_german_to_spanish(story_content):
         max_length=max_length,
     )
     # Split the text into chunks
-    german_to_spanish_translation = run_through_model
-    (story_content, max_length, "Helsinki-NLP/opus-mt-de-es", translator_to_spanish)
+    german_to_spanish_translation = run_through_model(
+        story_content, max_length, "Helsinki-NLP/opus-mt-de-es", translator_to_spanish
+    )
     return german_to_spanish_translation

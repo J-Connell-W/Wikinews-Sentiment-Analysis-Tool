@@ -2,47 +2,79 @@
 
 ## Introduction
 
-## Table of Contents
+This project is a web application that allows users to input a news article in English, German or Spanish and then translate it to one of the remaining two languages. The user can also analyze the sentiment of the article and summarize it. The project is built using HuggingFace's transformers library and FastAPI for the backend. The frontend is built using Svelte, TypeScript, and PicoCSS. This project was built by Joel connell and Thomas Mendenhall.
 
 ## Installation
 
-## Usage
+We decided not to deploy this project to the web so you may clone the repository and follow these steps to run it locally. Maybe in the future we will deploy it to the web.
 
-## License
+### Steps
 
-## Acknowledgements
+These are the steps to run the project locally for VSCode. You can use any text editor or IDE you like but the steps may be different.
+
+1. Clone the repository
+2. Open the powershell terminal in VSCode and navigate to the back folder with `cd back`
+3. Create a new venv and activate it
+4. Run `pip install -r requirements.txt`
+5. Run `uvicorn main:app --reload` to start the backend
+6. **Without closing your other terminal open a new terminal** and navigate from the root by `cd front/my-app` to the folder then to my-app folder and run `npm install`
+7. Run `npm run dev` to start the frontend
+8. Open your browser and navigate to the address that your terminal gives you it should look like `http://localhost:5173/`
+
+### How to use the site
+
+- Once you have the site open you can paste a news article into the text area
+- You can then select the language of the article from the dropdown
+- You can then select the language you want to translate the article to from the second dropdown
+- You may use the checkboxes to determine which steps you want to take with the article less options will make the process faster as it has to run through less models.
+
+### Additional Considerations
+
+The first running of the site may be slow as the models have to be downloaded. The models are large and may take a few minutes to download. Once the models are downloaded the site should run faster on subsequent uses. The site may also be slow if you are using a slow internet connection or a slow computer.
+
+Also, the site may not work if you are using a VPN or are behind a firewall that blocks the models from being downloaded.
+
+The front-end sends the article to localhost:8000/story so you will need to make sure the backend is set up for localhost:8000. If you are using a different port you will need to change the fetch request in the front-end to the correct port.
 
 ## Methodology
 
-## References
+We will be using the following tools and libraries for this project:
 
-### sacreBLEU
+- [HuggingFace](https://huggingface.co/)
+- [Transformers](https://huggingface.co/transformers/)
+- [Torch](https://pytorch.org/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Svelte](https://svelte.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [Spacy](https://spacy.io/)
+- [PicoCSS](https://picocss.com/)
 
-sacreBLEU is used in this project to get a gauge of the accuracy of a few models which were used in the translation step.
+### Models
 
-```text
-@inproceedings{post-2018-call,
-  title = "A Call for Clarity in Reporting {BLEU} Scores",
-  author = "Post, Matt",
-  booktitle = "Proceedings of the Third Conference on Machine Translation: Research Papers",
-  month = oct,
-  year = "2018",
-  address = "Belgium, Brussels",
-  publisher = "Association for Computational Linguistics",
-  url = "https://www.aclweb.org/anthology/W18-6319",
-  pages = "186--191",
-}
-```
+#### Translation Models
 
-[Post, Matt. "A Call for Clarity in Reporting BLEU Scores." Proceedings of the Third Conference on Machine Translation: Research Papers, Belgium, Brussels, Association for Computational Linguistics, Oct. 2018, pp. 186-191.](https://www.aclweb.org/anthology/W18-6319)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-de-en)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-en-de)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-es-en)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-en-es)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-de-es)
+- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-es-de)
 
-### Data Source: CCMatrix v1
+#### Sentiment Analysis Model
 
-The CCMatrix v1 is data used to create a source and reference set for the use of the sacreBLEU scoring.
+- [lxyuan/distilbert-base-multilingual-cased-sentiments-student](https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student)
 
-[CCMatrix: Mining Billions of High-Quality Parallel Sentences on the WEB](https://arxiv.org/abs/1911.04944) by Holger Schwenk, Guillaume Wenzek, Sergey Edunov, Edouard Grave and Armand Joulin.
+#### Summarization Model
 
-[Beyond English-Centric Multilingual Machine Translation](https://arxiv.org/abs/2010.11125) by Angela Fan, Shruti Bhosale, Holger Schwenk, Zhiyi Ma, Ahmed El-Kishky, Siddharth Goyal, Mandeep Baines, Onur Celebi, Guillaume Wenzek, Vishrav Chaudhary, Naman Goyal, Tom Birch, Vitaliy Liptchinsky, Sergey Edunov, Edouard Grave, Michael Auli, and Armand Joulin.
-This HuggingFace CCMatrix dataset is a wrapper around the service and files prepared and hosted by OPUS:
+- [sshleifer/distilbart-cnn-12-6](https://huggingface.co/sshleifer/distilbart-cnn-12-6)
 
-[Parallel Data, Tools and Interfaces in OPUS](https://www.aclweb.org/anthology/L12-1246/) by Jörg Tiedemann.
+#### Visualization
+
+The visualization step was accomplished by using Spacy's Visualization called Displacy. This shows the dependency parsing and named entity recognition of the English stories.
+
+- [Displacy](https://spacy.io/usage/visualizers)
+
+## License
+
+The models used in this project are on their individual licenses you can see more about that on the model's page which should be linked above. As this is made off of HuggingFace's models we will not be providing a license for the models.

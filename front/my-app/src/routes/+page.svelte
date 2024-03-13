@@ -52,80 +52,11 @@
       infoText: "Would you like to summarize the article?",
     },
     {
-      name: "Sentiment Analysis",
-      checked: true,
-      infoText: "Perform Sentiment Analysis on the Article?",
-    },
-    {
       name: "Vizualize",
       checked: true,
-      infoText:
-        "Show dependency parsing and named entity recognition by sentence. Currently only for English stories.",
+      infoText: "Only stories originally in English.",
     },
   ];
-
-  // A reactive statement that checks if all checkboxes are unchecked
-  $: allUnchecked = checkboxes.every((checkbox) => !checkbox.checked);
-  $: atLeastOneChecked = checkboxes.some((checkbox) => checkbox.checked);
-
-  // Instantiating this to hold the dummy data coming from json
-  // Used for testing without having to make a request to the api
-  // onMount(async () => {
-
-  //   currentStatus.set(Status.LOADING);
-  //   try {
-  //     // If the file is in the 'static' directory
-  //     const response = await fetch("dummy_data_SpanishToEnglish.json");
-  //     if (response.ok) {
-  //       const result = await response.json();
-  //       const fromJsonToObject = result[0];
-  //       console.log(fromJsonToObject);
-  //       fromJsonToObject.story_content_split_sentences.forEach(
-  //         (element: any) => {
-  //           element = element + ". ";
-  //         }
-  //       );
-  //       fullOriginalTextSplit.set(
-  //         (
-  //           fromJsonToObject.story_content_split_sentences as (
-  //             | string
-  //             | null
-  //             | undefined
-  //           )[]
-  //         ).filter(
-  //           (sentence): sentence is string =>
-  //             typeof sentence === "string" && sentence.trim() !== ""
-  //         )
-  //       );
-  //       svgDisplacy.set(fromJsonToObject.html_get_dep);
-  //       summarizationText.set(fromJsonToObject.summarization);
-  //       sentimentAnalysisLabel.set(fromJsonToObject.sentiment_label);
-  //       sentimentAnalysisScore.set(fromJsonToObject.sentiment_score);
-  //       if (fromJsonToObject.translation === undefined) {
-  //         isThereTranslation.set(DisplayGroup.NOTRANSLATION);
-  //         console.log("Translation undefined: " + isThereTranslation);
-  //       } else if (fromJsonToObject.translation !== undefined) {
-  //         translationText.set(fromJsonToObject.translation);
-  //         summarizationTranslationText.set(
-  //           fromJsonToObject.summarizationTranslated
-  //         );
-  //         isThereTranslation.set(DisplayGroup.TRANSLATION);
-  //         console.log("Translation not undefined: " + isThereTranslation);
-  //       } else {
-  //         isThereTranslation.set(DisplayGroup.NOTRANSLATION);
-  //         console.log("Translation else: " + isThereTranslation);
-  //       }
-  //       currentStatus.set(Status.SUCCESS);
-  //     }
-  //     if (!response.ok) {
-  //       currentStatus.set(Status.ERROR);
-  //       throw new Error(`Error: ${response.status}`);
-  //     }
-  //   } catch (error) {
-  //     console.error("There was an error submitting the form", error);
-  //     currentStatus.set(Status.ERROR);
-  //   }
-  // });
 
   // Functions to handle the display state of the tabs
   function translationTab() {
@@ -182,13 +113,17 @@
 
     // Construct the object to match the `Story` model
     const story = {
-      id: data.get("id"), // Assuming you have a field for the 'id' in your form
+      id: data.get("id"),
       original_language: data.get("original_language"),
       translation_language: data.get("translation_language"),
+      summarization: checkboxes[1].checked,
+      visualization: checkboxes[2].checked,
     };
     const storyNoTanslation = {
-      id: data.get("id"), // Assuming you have a field for the 'id' in your form
+      id: data.get("id"),
       original_language: data.get("original_language"),
+      summarization: checkboxes[1].checked,
+      visualization: checkboxes[2].checked,
     };
 
     try {
@@ -317,12 +252,13 @@
       <p class="main-accent-color">
         Welcome to our site! Here, you can transform any article by simply
         entering its URL. You may choose to translate it into your preferred
-        language for easier understanding. Our AI-driven platform goes beyond
-        translation; it delves into sentiment analysis, offering insight into
-        the article's emotional tone. For a concise overview, our summarization
-        feature distills the core information. Plus, experience a unique
-        perspective with displaCy, visualizing text structure through dependency
-        and sentence parsing. Join us in experiencing news in a whole new way.
+        language options of: English, Spanish, and German. Our tool includes
+        more than translation; it delves into sentiment analysis, offering
+        insight into the article's emotional tone. For a concise overview, our
+        summarization feature distills the core information. Plus, experience a
+        unique perspective with displaCy, visualizing text structure through
+        dependency and sentence parsing. Join us in experiencing news in a whole
+        new way.
       </p>
     </div>
     {#if $currentStatus !== Status.LOADING}
@@ -369,6 +305,24 @@
                   <option value={option}>{option}</option>
                 {/each}
               </select>
+              <div style="font-size:1.1em" class="main-accent-color">
+                Choose what you would like the tool to do with the news story.
+              </div>
+              <div
+                style="font-size:.9em; padding-top:10px; padding-bottom:10px;"
+                class="main-accent-color"
+              >
+                Visualization is only available for stories that originate in
+                English. No button will show up for visualization even if it is
+                selected given a story of a different language.
+              </div>
+              <div
+                style="font-size:.9em; padding-top:10px; padding-bottom:10px;"
+                class="main-accent-color"
+              >
+                If none are chosen, then by default only Sentiment Analysis will
+                happen.
+              </div>
               {#each checkboxes as checkbox, index (checkbox.name)}
                 <label class="main-accent-color">
                   <input
@@ -381,7 +335,7 @@
                   <em class="info-icon" data-tooltip={checkbox.infoText}>?</em>
                 </label>
               {/each}
-              {#if checkboxes[1].checked}
+              {#if checkboxes[0].checked}
                 <div id="translation-language-container" transition:slide>
                   <label for="dropdown2" class="main-accent-color"
                     >Translation Language <em
@@ -430,44 +384,40 @@
       </div>
     {:else if $currentStatus === Status.SUCCESS}
       <div id="output-container">
-        {#if currentDisplayGroup === DisplayGroup.UNSELECTED && atLeastOneChecked}
+        {#if currentDisplayGroup === DisplayGroup.UNSELECTED}
           <div class="output-sections" id="unselected-section">
             <h2 class="main-accent-color">
               Please select a tab to view the output
             </h2>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.UNSELECTED && allUnchecked}
-          <div class="output-sections" id="unselected-section">
-            <h2 class="main-accent-color">
-              Select at least one of the checkboxes to view the outputs.
-            </h2>
-          </div>
         {/if}
         {#if $isThereTranslation === DisplayGroup.NOTRANSLATION}
           <div class="button-grouping" role="group">
-            <button class="bttn" on:click={summarizationTab}
-              >Summarization</button
-            >
-            <button class="bttn" on:click={sentimentTab}>Sentiment</button>
+            {#if $summarizationText}
+              <button class="bttn" on:click={summarizationTab}
+                >Summarization</button
+              >
+              <button class="bttn" on:click={sentimentTab}>Sentiment</button>
+            {/if}
             {#if $displacyDepSvg}
               <button class="bttn" on:click={visualizationTab}
                 >Visualization</button
               >
             {/if}
           </div>
-        {:else if $isThereTranslation === DisplayGroup.TRANSLATION && checkboxes[1].checked}
+        {:else if $isThereTranslation === DisplayGroup.TRANSLATION}
           <div class="button-grouping" role="group">
-            {#if checkboxes[1].checked}
+            {#if $translationText}
               <button class="bttn" on:click={translationTab}>Translation</button
               >
             {/if}
-            {#if $summarizationTranslationText && summarizationTranslationTab && checkboxes[1].checked}
+            {#if $summarizationTranslationText && summarizationTranslationTab}
               <button class="bttn" on:click={summarizationTranslationTab}
                 >Summarization</button
               >
             {/if}
             <button class="bttn" on:click={sentimentTab}>Sentiment</button>
-            {#if $displacyDepSvg && checkboxes[3].checked}
+            {#if $displacyDepSvg}
               <button class="bttn" on:click={visualizationTab}
                 >Visualization</button
               >
@@ -493,12 +443,12 @@
               <p class="main-accent-color">{$translationText}</p>
             </div>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION && checkboxes[1].checked}
+        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION}
           <div class="standard-margin summary-alone">
             <h3 class="main-accent-color">Summary</h3>
             <p class="main-accent-color">{$summarizationText}</p>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION_TRANSLATION && checkboxes[1].checked}
+        {:else if currentDisplayGroup === DisplayGroup.SUMMARIZATION_TRANSLATION}
           <div class="output-sections" id="translation-section">
             <div id="translation-text">
               <h3 class="main-accent-color">Translated Summary</h3>
@@ -509,7 +459,7 @@
               <p class="main-accent-color">{$summarizationText}</p>
             </div>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.SENTIMENT && checkboxes[2].checked}
+        {:else if currentDisplayGroup === DisplayGroup.SENTIMENT}
           <div class="standard-margin" id="sentiment-section">
             <h3 class="main-accent-color">Sentiment Analysis</h3>
             <p class="main-accent-color">
@@ -519,7 +469,7 @@
               Label: {$sentimentAnalysisScore}
             </p>
           </div>
-        {:else if currentDisplayGroup === DisplayGroup.VISUALIZATION && checkboxes[3].checked}
+        {:else if currentDisplayGroup === DisplayGroup.VISUALIZATION}
           <div class="output-sections" id="visualization-section">
             <div id="displacy-section">
               <h2 class="main-accent-color">DisplaCy</h2>
