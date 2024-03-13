@@ -14,12 +14,13 @@ These are the steps to run the project locally for VSCode. You can use any text 
 
 1. Clone the repository
 2. Open the powershell terminal in VSCode and navigate to the back folder with `cd back`
-3. Create a new venv and activate it
-4. Run `pip install -r requirements.txt`
-5. Run `uvicorn main:app --reload` to start the backend
-6. **Without closing your other terminal open a new terminal** and navigate from the root by `cd front/my-app` to the folder then to my-app folder and run `npm install`
-7. Run `npm run dev` to start the frontend
-8. Open your browser and navigate to the address that your terminal gives you it should look like `http://localhost:5173/`
+3. Create a new venv `python -m venv venv`
+4. Start the venv with ./venv/Scripts/Activate
+5. Run `pip install -r requirements.txt`
+6. Run `uvicorn main:app --reload` to start the backend
+7. **Without closing your other terminal open a new terminal** and navigate from the root by `cd front/my-app` to the folder then to my-app folder and run `npm install`
+8. Run `npm run dev` to start the frontend
+9. Open your browser and navigate to the address that your terminal gives you it should look like `http://localhost:5173/`
 
 ### How to use the site
 
