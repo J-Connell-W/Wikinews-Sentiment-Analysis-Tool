@@ -55,11 +55,11 @@ We will be using the following tools and libraries for this project:
 #### Translation Models
 
 - [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-de-en)
-- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-en-de)
-- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-es-en)
-- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-en-es)
-- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-de-es)
-- [Helsinki-NLP/opus-mt-de-en](https://huggingface.co/Helsinki-NLP/opus-mt-es-de)
+- [Helsinki-NLP/opus-mt-en-de](https://huggingface.co/Helsinki-NLP/opus-mt-en-de)
+- [Helsinki-NLP/opus-mt-es-en](https://huggingface.co/Helsinki-NLP/opus-mt-es-en)
+- [Helsinki-NLP/opus-mt-en-es](https://huggingface.co/Helsinki-NLP/opus-mt-en-es)
+- [Helsinki-NLP/opus-mt-de-es](https://huggingface.co/Helsinki-NLP/opus-mt-de-es)
+- [Helsinki-NLP/opus-mt-es-de](https://huggingface.co/Helsinki-NLP/opus-mt-es-de)
 
 #### Sentiment Analysis Model
 
